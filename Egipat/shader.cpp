@@ -18,6 +18,11 @@ Shader::SetUniform1f(const std::string& uniform, float v) const {
 }
 
 void
+Shader::SetUniform3f(const std::string& uniform, const glm::vec3& v) const {
+    glUniform3f(glGetUniformLocation(mId, uniform.c_str()), v.x, v.y, v.z);
+}
+
+void
 Shader::SetUniform4m(const std::string& uniform, const glm::mat4& m) const {
     glUniformMatrix4fv(glGetUniformLocation(mId, uniform.c_str()), 1, GL_FALSE, &m[0][0]);
 }

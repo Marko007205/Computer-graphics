@@ -41,7 +41,6 @@ enum EBufferType {
 class Model : public IRenderable {
 private:
     std::vector<Mesh> mMeshes;
-    std::vector<Buffer> mMeshBuffers;
     unsigned mVAO;
     unsigned mNumVertices;
     unsigned mNumIndices;

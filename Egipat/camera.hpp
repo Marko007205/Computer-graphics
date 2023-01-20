@@ -20,6 +20,7 @@ public:
     float mPitch;
     float mYaw;
     float mMoveSpeed;
+    bool mMoveFaster;
     float mRotateSpeed;
     float mRadius;
     glm::vec3 mWorldUp;

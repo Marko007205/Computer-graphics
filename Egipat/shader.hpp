@@ -42,6 +42,14 @@ public:
     void SetUniform1f(const std::string& uniform, float v) const;
 
     /**
+    * @brief Sets float uniform value
+    *
+    * @param uniform Name of uniform
+    * @param v Value
+    */
+    void SetUniform3f(const std::string& uniform, const glm::vec3& v) const;
+
+    /**
      * @brief Sets 4x4 matrix uniform value
      *
      * @param uniform Name of uniform

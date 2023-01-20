@@ -35,7 +35,15 @@ OrbitalCamera::Rotate(float dYaw, float dPitch, float dt) {
 
 void
 OrbitalCamera::Move(float dx, float dy, float dt) {
-    mPosition += (dx * mRight + dy * mFront) * mMoveSpeed * dt;
+    float speed = mMoveSpeed;
+
+    if (mMoveFaster)
+        speed *= 2.5f;
+
+    if ((dx == 0 or dy == 0) and dx != dy)
+        speed = speed / sqrt(2.0f);
+
+    mPosition += (dx * mRight + dy * mFront) * speed * dt;
     updateVectors();
 }
 

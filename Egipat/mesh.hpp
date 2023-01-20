@@ -13,9 +13,11 @@
 
 #include <assimp/scene.h>
 #include<vector>
-#include "ibufferable.hpp"
+#include <GL/glew.h>
+#include <iostream>
+#include "texture.hpp"
 
-class Mesh : public IBufferable {
+class Mesh {
 public:
     std::vector<unsigned> mIndices;
     std::vector<float> mVertices;
@@ -28,12 +30,22 @@ public:
      * @param resPath - Resource relative path. For loading textures, etc...
      * 
      */
-    Mesh(const aiMesh* mesh, aiMaterial* MeshMaterial, const std::string& resPath);
+    Mesh(const aiMesh* mesh, const aiMaterial* material, const std::string& resPath);
 
-	float* GetVertices();
-	unsigned* GetIndices();
-    unsigned GetVertexCount();
-	unsigned GetIndexCount();
+    /**
+     * @brief Renders the current mesh
+     *
+     */
+    void Render() const;
+
 private:
-    void processMesh(const aiMesh* mesh, aiMaterial* MeshMaterial, const std::string& resPath);
+    unsigned mVAO;
+    unsigned mVBO;
+    unsigned mEBO;
+    unsigned mVertexCount;
+    unsigned mIndexCount;
+    unsigned mDiffuseTexture;
+    unsigned mSpecularTexture;
+    unsigned loadMeshTexture(const aiMaterial* material, const std::string& resPath, aiTextureType type);
+    void processMesh(const aiMesh* mesh, const aiMaterial* material, const std::string& resPath);
 };

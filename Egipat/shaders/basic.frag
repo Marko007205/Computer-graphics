@@ -1,17 +1,12 @@
 #version 330 core
 
 out vec4 FragColour;
+in vec2 TexCoords;
 
-in vertex_out {
-	vec3 FragColour;
-} FragmentIn;
-
-uniform int moonflag;
+uniform sampler2D uTexture; 
+uniform float uInterpolationFactor;
 
 void main() {
-	if (moonflag == 1) {
-		FragColour = vec4(0.99f, 0.98f, 0.84f, 1.0f);
-	} else {
-		FragColour = vec4(FragmentIn.FragColour, 1.0f);
-	}
+	vec4 texColor = texture(uTexture, TexCoords);
+	FragColour = texColor;
 }

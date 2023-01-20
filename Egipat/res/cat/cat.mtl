@@ -1,4 +1,9 @@
-#
-#
-#
-
+newmtl Egyptian_Cat:Egyptian_Cat1
+Ka 0 0 0
+Kd 1 1 1
+d 1
+Tr 0
+illum 2
+Ks 0.5 0.5 0.5
+Ns 20
+map_Kd cat.jpeg

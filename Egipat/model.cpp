@@ -10,19 +10,17 @@ Model::Model(std::string filename) {
 bool
 Model::Load() {
     Assimp::Importer Importer;
-    const aiScene *Scene = Importer.ReadFile(mFilename, POSTPROCESS_FLAGS);
+    const aiScene* Scene = Importer.ReadFile(mFilename, POSTPROCESS_FLAGS);
 
     if (!Scene || Scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !Scene->mRootNode) {
         std::cerr << "[Err] Failed to load model:" << std::endl << Importer.GetErrorString() << std::endl;
         return false;
     }
     mMeshes.reserve(Scene->mNumMeshes);
-    for(unsigned MeshIdx = 0; MeshIdx < Scene->mNumMeshes; ++MeshIdx) {
+    for (unsigned MeshIdx = 0; MeshIdx < Scene->mNumMeshes; ++MeshIdx) {
         aiMaterial* MeshMaterial = Scene->mMaterials[Scene->mMeshes[MeshIdx]->mMaterialIndex];
         Mesh CurrMesh(Scene->mMeshes[MeshIdx], MeshMaterial, mDirectory);
         mMeshes.push_back(CurrMesh);
-        mMeshBuffers.push_back(Buffer(CurrMesh));
-
     }
     std::cout << mFilename << " Loaded " << mMeshes.size() << " meshes" << std::endl;
     return true;
@@ -30,8 +28,8 @@ Model::Load() {
 
 void
 Model::Render() {
-    for(unsigned MeshIdx = 0; MeshIdx < mMeshes.size(); ++MeshIdx) {
-        Mesh &Mesh = mMeshes[MeshIdx];
-        mMeshBuffers[MeshIdx].Render();
+    for (unsigned MeshIdx = 0; MeshIdx < mMeshes.size(); ++MeshIdx) {
+        Mesh& Mesh = mMeshes[MeshIdx];
+        mMeshes[MeshIdx].Render();
     }
 }
