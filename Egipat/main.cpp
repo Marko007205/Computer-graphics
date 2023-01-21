@@ -30,7 +30,7 @@ const int WindowHeight = 800;
 const std::string WindowTitle = "Egipat";
 const float TargetFPS = 60.0f;
 const float TargetFrameTime = 1.0f / TargetFPS;
-const unsigned int Stride = 5 * sizeof(float);
+const unsigned int Stride = 8 * sizeof(float);
 OrbitalCamera Camera(90.0f, 5.0f, 3.0f, 4.0f);
 
 float FrameStartTime = (float)glfwGetTime();
@@ -156,10 +156,12 @@ int main() {
         return -1;
     }
 
-    Shader AlmightyShader("shaders/basic.vert", "shaders/phong_material_texture.frag");
+    Shader AlmightyShader("shaders/shader.vert", "shaders/shader.frag");
 
     Texture textureSand("res/sand/sand.jpg");
+	Texture textureSandSpecular("res/sand/sand_specular.jpg");
     Texture texturePyramid("res/pyramid/pyramid.jpeg");
+    Texture texturegoldPyramidTop("res/pyramid/gold.jpg");
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -178,52 +180,58 @@ int main() {
         return -1;
     }
 
-    Model Cat("res/cat/cat.obj");
-    if(!Cat.Load()) {
+    Model Pharaoh("res/pharaoh/pharaoh.obj");
+    if(!Pharaoh.Load()) {
         std::cerr << "Failed to load model" << std::endl;
         glfwTerminate();
         return -1;
     }
 
+    Model Rug("res/rug/rug.obj");
+    if(!Rug.Load()) {
+        std::cerr << "Failed to load model" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
     
     glEnable(GL_DEPTH_TEST);
     glEnable (GL_CULL_FACE);
 
     std::vector<float> SandVertices = {
-        -1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
-         1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
-         1.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-    	 1.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-    	-1.0f, 0.0f, -1.0f, 0.0f, 1.0f,
-    	-1.0f, 0.0f,  1.0f, 0.0f, 0.0f
+        -1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+         1.0f, 0.0f,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+         1.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+    	 1.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+    	-1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+    	-1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f
     };
 
     std::vector<float> PyramidVertices = {
-        -1.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-        -1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
-         1.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-         1.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-        -1.0f, 0.0f,  1.0f, 0.0f, 1.0f,
-         1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+        -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -1.0f, 0.0f,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+         1.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+         1.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        -1.0f, 0.0f,  1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+         1.0f, 0.0f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 
-         0.0f, 1.5f,  0.0f, 0.5f, 1.0f,
-    	-1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
-         1.0f, 0.0f,  1.0f, 1.0f, 0.0f,
+         0.0f, 1.5f,  0.0f, 0.5f, 1.0f,  0.00000f, 0.5547f,  0.83205f,
+    	-1.0f, 0.0f,  1.0f, 0.0f, 0.0f,  0.00000f, 0.5547f,  0.83205f,
+         1.0f, 0.0f,  1.0f, 1.0f, 0.0f,  0.00000f, 0.5547f,  0.83205f,
+                                                             
+         0.0f, 1.5f,  0.0f, 0.5f, 1.0f,  0.83205f, 0.5547f,  0.00000f,
+         1.0f, 0.0f,  1.0f, 0.0f, 0.0f,  0.83205f, 0.5547f,  0.00000f,
+         1.0f, 0.0f, -1.0f, 1.0f, 0.0f,  0.83205f, 0.5547f,  0.00000f,
+                                         
+         0.0f, 1.5f,  0.0f, 0.5f, 1.0f,  0.00000f, 0.5547f, -0.83205f,
+         1.0f, 0.0f, -1.0f, 0.0f, 0.0f,  0.00000f, 0.5547f, -0.83205f,
+        -1.0f, 0.0f, -1.0f, 1.0f, 0.0f,  0.00000f, 0.5547f, -0.83205f,
 
-         0.0f, 1.5f,  0.0f, 0.5f, 1.0f,
-         1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
-         1.0f, 0.0f, -1.0f, 1.0f, 0.0f,
-
-         0.0f, 1.5f,  0.0f, 0.5f, 1.0f,
-         1.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-        -1.0f, 0.0f, -1.0f, 1.0f, 0.0f,
-
-    	 0.0f, 1.5f,  0.0f, 0.5f, 1.0f,
-        -1.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-        -1.0f, 0.0f,  1.0f, 1.0f, 0.0f
+    	 0.0f, 1.5f,  0.0f, 0.5f, 1.0f, -0.83205f, 0.5547f,  0.00000f,
+        -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, -0.83205f, 0.5547f,  0.00000f,
+        -1.0f, 0.0f,  1.0f, 1.0f, 0.0f, -0.83205f, 0.5547f,  0.00000f
     };
 
-    std::vector<float> RugVertices = {
+    /*std::vector<float> RugVertices = {
         -0.5f,  0.48f, -0.5f, 0.2f, 0.16f,
          0.5f,  0.48f, -0.5f, 0.2f, 0.16f,
          0.5f,  0.50f, -0.5f, 0.2f, 0.16f,
@@ -265,7 +273,7 @@ int main() {
         -0.5f,  0.50f,  0.5f, 0.22f, 0.21f,
          0.5f,  0.50f,  0.5f, 0.22f, 0.21f,
         -0.5f,  0.50f, -0.5f, 0.22f, 0.21f
-    };
+    };*/
 
     unsigned SandVAO;
     glGenVertexArrays(1, &SandVAO);
@@ -278,13 +286,15 @@ int main() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, Stride, (void*) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-	std::vector<float> SandNormals = calculateTriangleNormals(SandVertices);
-	unsigned SandVBO_normals;
-    glGenBuffers(1, &SandVBO_normals);
-	glBindBuffer(GL_ARRAY_BUFFER, SandVBO_normals);
-	glBufferData(GL_ARRAY_BUFFER, SandNormals.size() * sizeof(float), SandNormals.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
-	glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, Stride, (void*) (5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+	//std::vector<float> SandNormals = calculateTriangleNormals(SandVertices);
+	//unsigned SandVBO_normals;
+	//glGenBuffers(1, &SandVBO_normals);
+	//glBindBuffer(GL_ARRAY_BUFFER, SandVBO_normals);
+	//glBufferData(GL_ARRAY_BUFFER, SandNormals.size() * sizeof(float), SandNormals.data(), GL_STATIC_DRAW);
+	//glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+	//glEnableVertexAttribArray(2);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     
@@ -299,13 +309,15 @@ int main() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, Stride, (void*) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    std::vector<float> PyramidOfKhafreNormals = calculateTriangleNormals(SandVertices);
-	unsigned PyramidOfKhafreVBO_normals;
-    glGenBuffers(1, &PyramidOfKhafreVBO_normals);
-	glBindBuffer(GL_ARRAY_BUFFER, PyramidOfKhafreVBO_normals);
-	glBufferData(GL_ARRAY_BUFFER, PyramidOfKhafreNormals.size() * sizeof(float), PyramidOfKhafreNormals.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, Stride, (void*) (5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+	//std::vector<float> PyramidOfKhafreNormals = calculateTriangleNormals(SandVertices);
+	//unsigned PyramidOfKhafreVBO_normals;
+	//glGenBuffers(1, &PyramidOfKhafreVBO_normals);
+	//glBindBuffer(GL_ARRAY_BUFFER, PyramidOfKhafreVBO_normals);
+	//glBufferData(GL_ARRAY_BUFFER, PyramidOfKhafreNormals.size() * sizeof(float), PyramidOfKhafreNormals.data(), GL_STATIC_DRAW);
+	//glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+	//glEnableVertexAttribArray(2);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
@@ -320,13 +332,15 @@ int main() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, Stride, (void*) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    std::vector<float> PyramidOfMenkaureNormals = calculateTriangleNormals(SandVertices);
-	unsigned PyramidOfMenkaureVBO_normals;
-    glGenBuffers(1, &PyramidOfMenkaureVBO_normals);
-	glBindBuffer(GL_ARRAY_BUFFER, PyramidOfMenkaureVBO_normals);
-	glBufferData(GL_ARRAY_BUFFER, PyramidOfMenkaureNormals.size() * sizeof(float), PyramidOfMenkaureNormals.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, Stride, (void*) (5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+	//std::vector<float> PyramidOfMenkaureNormals = calculateTriangleNormals(SandVertices);
+	//unsigned PyramidOfMenkaureVBO_normals;
+	//glGenBuffers(1, &PyramidOfMenkaureVBO_normals);
+	//glBindBuffer(GL_ARRAY_BUFFER, PyramidOfMenkaureVBO_normals);
+	//glBufferData(GL_ARRAY_BUFFER, PyramidOfMenkaureNormals.size() * sizeof(float), PyramidOfMenkaureNormals.data(), GL_STATIC_DRAW);
+	//glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+	//glEnableVertexAttribArray(2);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
@@ -341,63 +355,108 @@ int main() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, Stride, (void*) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    std::vector<float> PyramidOfKhufuNormals = calculateTriangleNormals(SandVertices);
-	unsigned PyramidOfKhufuVBO_normals;
-    glGenBuffers(1, &PyramidOfKhufuVBO_normals);
-	glBindBuffer(GL_ARRAY_BUFFER, PyramidOfKhufuVBO_normals);
-	glBufferData(GL_ARRAY_BUFFER, PyramidOfKhufuNormals.size() * sizeof(float), PyramidOfKhufuNormals.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, Stride, (void*) (5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+	//std::vector<float> PyramidOfKhufuNormals = calculateTriangleNormals(SandVertices);
+	//unsigned PyramidOfKhufuVBO_normals;
+	//glGenBuffers(1, &PyramidOfKhufuVBO_normals);
+	//glBindBuffer(GL_ARRAY_BUFFER, PyramidOfKhufuVBO_normals);
+	//glBufferData(GL_ARRAY_BUFFER, PyramidOfKhufuNormals.size() * sizeof(float), PyramidOfKhufuNormals.data(), GL_STATIC_DRAW);
+	//glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+	//glEnableVertexAttribArray(2);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    unsigned RugVAO;
-    glGenVertexArrays(1, &RugVAO);
-    glBindVertexArray(RugVAO);
-    unsigned RugVBO;
-    glGenBuffers(1, &RugVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, RugVBO);
-    glBufferData(GL_ARRAY_BUFFER, RugVertices.size() * sizeof(float), RugVertices.data(), GL_STATIC_DRAW);
+    unsigned PyramidTopVAO;
+    glGenVertexArrays(1, &PyramidTopVAO);
+    glBindVertexArray(PyramidTopVAO);
+    unsigned PyramidTopVBO;
+    glGenBuffers(1, &PyramidTopVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, PyramidTopVBO);
+    glBufferData(GL_ARRAY_BUFFER, PyramidVertices.size() * sizeof(float), PyramidVertices.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Stride, (void*) 0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, Stride, (void*) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    std::vector<float> RugNormals = calculateTriangleNormals(SandVertices);
-	unsigned RugVBO_normals;
-    glGenBuffers(1, &RugVBO_normals);
-	glBindBuffer(GL_ARRAY_BUFFER, RugVBO_normals);
-	glBufferData(GL_ARRAY_BUFFER, RugNormals.size() * sizeof(float), RugNormals.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, Stride, (void*) (5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+	//std::vector<float> PyramidTopNormals = calculateTriangleNormals(SandVertices);
+	//unsigned PyramidTopVBO_normals;
+	//glGenBuffers(1, &PyramidTopVBO_normals);
+	//glBindBuffer(GL_ARRAY_BUFFER, PyramidTopVBO_normals);
+	//glBufferData(GL_ARRAY_BUFFER, PyramidTopNormals.size() * sizeof(float), PyramidTopNormals.data(), GL_STATIC_DRAW);
+	//glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+	//glEnableVertexAttribArray(2);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    //unsigned RugVAO;
+    //glGenVertexArrays(1, &RugVAO);
+    //glBindVertexArray(RugVAO);
+    //unsigned RugVBO;
+    //glGenBuffers(1, &RugVBO);
+    //glBindBuffer(GL_ARRAY_BUFFER, RugVBO);
+    //glBufferData(GL_ARRAY_BUFFER, RugVertices.size() * sizeof(float), RugVertices.data(), GL_STATIC_DRAW);
+    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Stride, (void*) 0);
+    //glEnableVertexAttribArray(0);
+    //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, Stride, (void*) (3 * sizeof(float)));
+    //glEnableVertexAttribArray(1);
+	//std::vector<float> RugNormals = calculateTriangleNormals(SandVertices);
+	//unsigned RugVBO_normals;
+	//glGenBuffers(1, &RugVBO_normals);
+	//glBindBuffer(GL_ARRAY_BUFFER, RugVBO_normals);
+	//glBufferData(GL_ARRAY_BUFFER, RugNormals.size() * sizeof(float), RugNormals.data(), GL_STATIC_DRAW);
+	//glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+	//glEnableVertexAttribArray(2);
+    //glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //glBindVertexArray(0);
+
+    glm::vec3 moonPosition = glm::vec3(-10.0f, 20.0f, -40.0f);
+    glm::vec3 lightDir = glm::vec3(0.33f, -0.66f, 1.33f);
+    glm::vec3 moonTranslation = 30.0f * (-lightDir) + Camera.mPosition;
+
     glUseProgram(AlmightyShader.GetId());
-    AlmightyShader.SetUniform3f("uDirLight.Direction", glm::vec3(1.0f, -1.0f, 0.0f));
-    AlmightyShader.SetUniform3f("uDirLight.Ka", glm::vec3(1.0f, 1.0f, 1.0f));
-    AlmightyShader.SetUniform3f("uDirLight.Kd", glm::vec3(0.0f, 0.0f, 0.1f));
+    AlmightyShader.SetUniform3f("uDirLight.Direction", lightDir);
+    AlmightyShader.SetUniform3f("uDirLight.Ka", glm::vec3(0.1f));
+    AlmightyShader.SetUniform3f("uDirLight.Kd", glm::vec3(79.0f/255.0f, 105.0f/255.0f, 136.0f/255.0f));
     AlmightyShader.SetUniform3f("uDirLight.Ks", glm::vec3(1.0f));
 
-    AlmightyShader.SetUniform3f("uPointLight.Ka", glm::vec3(0.0f, 0.2f, 0.0f));
-    AlmightyShader.SetUniform3f("uPointLight.Kd", glm::vec3(0.0f, 0.5f, 0.0f));
-    AlmightyShader.SetUniform3f("uPointLight.Ks", glm::vec3(1.0f));
-    AlmightyShader.SetUniform1f("uPointLight.Kc", 1.0f);
-    AlmightyShader.SetUniform1f("uPointLight.Kl", 0.092f);
-    AlmightyShader.SetUniform1f("uPointLight.Kq", 0.032f);
+    AlmightyShader.SetUniform3f("uPointLightKhufu.Position", glm::vec3(0.0f));
+    AlmightyShader.SetUniform3f("uPointLightKhufu.Ka", glm::vec3(212.0f/255.0f, 175.0f/255.0f, 55.0f/255.0f));
+    AlmightyShader.SetUniform3f("uPointLightKhufu.Kd", glm::vec3(255.0f/255.0f, 215.0f/255.0f, 0.0f));
+    AlmightyShader.SetUniform3f("uPointLightKhufu.Ks", glm::vec3(1.0f));
+    AlmightyShader.SetUniform1f("uPointLightKhufu.Kc", 1.0f);
+    AlmightyShader.SetUniform1f("uPointLightKhufu.Kl", 0.5f);
+    AlmightyShader.SetUniform1f("uPointLightKhufu.Kq", 1.1f);
 
-    AlmightyShader.SetUniform3f("uSpotlight.Position", glm::vec3(0.0f, 3.5f, -2.0f));
-    AlmightyShader.SetUniform3f("uSpotlight.Direction", glm::vec3(0.0f, -1.0f, 1.0f));
-    AlmightyShader.SetUniform3f("uSpotlight.Ka", glm::vec3(0.2f, 0.0f, 0.0f));
-    AlmightyShader.SetUniform3f("uSpotlight.Kd", glm::vec3(0.5f, 0.0f, 0.0f));
+    AlmightyShader.SetUniform3f("uPointLightKhafre.Position", glm::vec3(0.0f));
+    AlmightyShader.SetUniform3f("uPointLightKhafre.Ka", glm::vec3(212.0f/255.0f, 175.0f/255.0f, 55.0f/255.0f));
+    AlmightyShader.SetUniform3f("uPointLightKhafre.Kd", glm::vec3(255.0f/255.0f, 215.0f/255.0f, 0.0f));
+    AlmightyShader.SetUniform3f("uPointLightKhafre.Ks", glm::vec3(1.0f));
+    AlmightyShader.SetUniform1f("uPointLightKhafre.Kc", 1.0f);
+    AlmightyShader.SetUniform1f("uPointLightKhafre.Kl", 0.5f);
+    AlmightyShader.SetUniform1f("uPointLightKhafre.Kq", 1.1f);
+
+    AlmightyShader.SetUniform3f("uPointLightMenkaure.Position", glm::vec3(0.0f));
+    AlmightyShader.SetUniform3f("uPointLightMenkaure.Ka", glm::vec3(212.0f/255.0f, 175.0f/255.0f, 55.0f/255.0f));
+    AlmightyShader.SetUniform3f("uPointLightMenkaure.Kd", glm::vec3(255.0f/255.0f, 215.0f/255.0f, 0.0f));
+    AlmightyShader.SetUniform3f("uPointLightMenkaure.Ks", glm::vec3(1.0f));
+    AlmightyShader.SetUniform1f("uPointLightMenkaure.Kc", 1.0f);
+    AlmightyShader.SetUniform1f("uPointLightMenkaure.Kl", 0.5f);
+    AlmightyShader.SetUniform1f("uPointLightMenkaure.Kq", 1.1f);
+
+    AlmightyShader.SetUniform3f("uSpotlight.Position", moonTranslation);
+    AlmightyShader.SetUniform3f("uSpotlight.Direction", -moonTranslation);
+    AlmightyShader.SetUniform3f("uSpotlight.Ka", glm::vec3(0.1f));
+    AlmightyShader.SetUniform3f("uSpotlight.Kd", glm::vec3(79.0f/255.0f, 105.0f/255.0f, 136.0f/255.0f));
     AlmightyShader.SetUniform3f("uSpotlight.Ks", glm::vec3(1.0f));
     AlmightyShader.SetUniform1f("uSpotlight.Kc", 1.0f);
-    AlmightyShader.SetUniform1f("uSpotlight.Kl", 0.092f);
-    AlmightyShader.SetUniform1f("uSpotlight.Kq", 0.032f);
-    AlmightyShader.SetUniform1f("uSpotlight.InnerCutOff", glm::cos(glm::radians(12.5f)));
-    AlmightyShader.SetUniform1f("uSpotlight.OuterCutOff", glm::cos(glm::radians(17.5f)));
-    // NOTE(Jovan): Diminishes the light's diffuse component by half, tinting it slightly red
+    AlmightyShader.SetUniform1f("uSpotlight.Kl", 0.00147f);
+    AlmightyShader.SetUniform1f("uSpotlight.Kq", 0.000007f);
+    AlmightyShader.SetUniform1f("uSpotlight.InnerCutOff", glm::cos(glm::radians(0.2f)));
+    AlmightyShader.SetUniform1f("uSpotlight.OuterCutOff", glm::cos(glm::radians(0.3f)));
+
     AlmightyShader.SetUniform1i("uMaterial.Kd", 0);
-    // NOTE(Jovan): Makes the object really shiny
     AlmightyShader.SetUniform1i("uMaterial.Ks", 1);
     AlmightyShader.SetUniform1f("uMaterial.Shininess", 128.0f);
 
@@ -419,12 +478,17 @@ int main() {
         
         processInput(Window, x, y, z, dt);
 
+        moonTranslation = 30.0f * (-lightDir) + Camera.mPosition;
+
         textureSand.Bind();
+        textureSandSpecular.Bind(1);
+        glBindTexture(GL_TEXTURE_2D, textureSandSpecular.GetRendererID());
         glm::mat4 Model = glm::mat4(1.0f);
         Model = glm::scale(Model, glm::vec3(15.0f));
         AlmightyShader.SetModel(Model);
         glBindVertexArray(SandVAO);
         glDrawArrays(GL_TRIANGLES, 0, (GLsizei)SandVertices.size() / vertexLength);
+        textureSandSpecular.Unbind();
 
         texturePyramid.Bind();
         Model = glm::mat4(1.0f);
@@ -446,26 +510,67 @@ int main() {
         Model = glm::mat4(1.0f);
     	Model = glm::translate(Model, glm::vec3(-1.0f, 0.0f, 3.0f));
         Model = glm::scale(Model, glm::vec3(0.65f));
-        Model = glm::rotate(Model, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        Model = glm::rotate(Model, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f)); 
         AlmightyShader.SetModel(Model);
         glBindVertexArray(PyramidOfMenkaureVAO);
         glDrawArrays(GL_TRIANGLES, 0, (GLsizei)PyramidVertices.size() / vertexLength);
 
+        texturegoldPyramidTop.Bind();
+        float pulse = (sin(glfwGetTime() * 0.6f) + 1.0f) / 4.0f;
+
         Model = glm::mat4(1.0f);
-    	Model = glm::translate(Model, glm::vec3(0.0f + x, 0.3 * cos(glfwGetTime()) + y, 1.5f + z));
+    	Model = glm::translate(Model, glm::vec3(2.5f, 2.065f, -5.0f));
+        Model = glm::scale(Model, glm::vec3(0.084f));
+        Model = glm::rotate(Model, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        AlmightyShader.SetModel(Model);
+        glBindVertexArray(PyramidTopVAO);
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)PyramidVertices.size() / vertexLength);
+        AlmightyShader.SetUniform3f("uPointLightKhufu.Position", glm::vec3(2.5f, 2.065f, -5.0f));
+    	AlmightyShader.SetUniform3f("uPointLightKhufu.Ka", glm::vec3(212.0f/255.0f * pulse, 175.0f/255.0f * pulse, 55.0f/255.0f * pulse));
+	    AlmightyShader.SetUniform3f("uPointLightKhufu.Kd", glm::vec3(255.0f/255.0f * pulse, 215.0f/255.0f * pulse, 0.0f * pulse));
+	    AlmightyShader.SetUniform3f("uPointLightKhufu.Ks", glm::vec3(1.0f));
+
+        Model = glm::mat4(1.0f);
+    	Model = glm::translate(Model, glm::vec3(0.0f, 2.08f, 0.0f));
+        Model = glm::scale(Model, glm::vec3(0.084f));
+        Model = glm::rotate(Model, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        AlmightyShader.SetModel(Model);
+        glBindVertexArray(PyramidTopVAO);
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)PyramidVertices.size() / vertexLength);
+        AlmightyShader.SetUniform3f("uPointLightKhafre.Position", glm::vec3(0.0f, 2.08f, 0.0f));
+        AlmightyShader.SetUniform3f("uPointLightKhafre.Ka", glm::vec3(212.0f/255.0f * pulse, 175.0f/255.0f * pulse, 55.0f/255.0f * pulse));
+	    AlmightyShader.SetUniform3f("uPointLightKhafre.Kd", glm::vec3(255.0f/255.0f * pulse, 215.0f/255.0f * pulse, 0.0f * pulse));
+	    AlmightyShader.SetUniform3f("uPointLightKhafre.Ks", glm::vec3(1.0f));
+
+        Model = glm::mat4(1.0f);
+    	Model = glm::translate(Model, glm::vec3(-1.0f, 0.85f, 3.0f));
+        Model = glm::scale(Model, glm::vec3(0.084f));
+        Model = glm::rotate(Model, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        AlmightyShader.SetModel(Model);
+        glBindVertexArray(PyramidTopVAO);
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)PyramidVertices.size() / vertexLength);
+        AlmightyShader.SetUniform3f("uPointLightMenkaure.Position", glm::vec3(-1.0f, 0.85f, 3.0f));
+        AlmightyShader.SetUniform3f("uPointLightMenkaure.Ka", glm::vec3(212.0f/255.0f * pulse, 175.0f/255.0f * pulse, 55.0f/255.0f * pulse));
+	    AlmightyShader.SetUniform3f("uPointLightMenkaure.Kd", glm::vec3(255.0f/255.0f * pulse, 215.0f/255.0f * pulse, 0.0f * pulse));
+	    AlmightyShader.SetUniform3f("uPointLightMenkaure.Ks", glm::vec3(1.0f));
+
+        glm::vec3 rugPosition = glm::vec3(0.0f + x, 0.3 * cos(glfwGetTime()) + y, 2.5f + z);
+        AlmightyShader.SetUniform3f("uSpotlight.Position", moonTranslation);
+        AlmightyShader.SetUniform3f("uSpotlight.Direction", rugPosition-moonTranslation);
+        Model = glm::mat4(1.0f);
+    	Model = glm::translate(Model, rugPosition);
         Model = glm::rotate(Model, glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         AlmightyShader.SetModel(Model);
-        glBindVertexArray(RugVAO);
-        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)RugVertices.size() / vertexLength);
+        Rug.Render();
 
         Model = glm::mat4(1.0f);
         Model = glm::translate(Model, glm::vec3(-0.3f, 0.0f, 3.7f));
-        Model = glm::rotate(Model, glm::radians(5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        Model = glm::rotate(Model, glm::radians(3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         AlmightyShader.SetModel(Model);
-        Cat.Render();
-        
+        Pharaoh.Render();
+
         Model = glm::mat4(1.0f);
-        Model = glm::translate(Model, glm::vec3(-7.0f, 7.0f, -9.0f));
+        Model = glm::translate(Model, moonTranslation);
         AlmightyShader.SetModel(Model);
         Moon.Render();
 

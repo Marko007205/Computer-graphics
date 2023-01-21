@@ -153,15 +153,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="shaders\phong_material_texture.frag" />
-    <None Include="shaders\basic.frag" />
-    <None Include="shaders\basic.vert" />
+    <None Include="shaders\shader.frag" />
+    <None Include="shaders\shader.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="buffer.hpp" />
     <ClInclude Include="camera.hpp" />
     <ClInclude Include="ibufferable.hpp" />
-    <ClInclude Include="irenderable.hpp" />
     <ClInclude Include="mesh.hpp" />
     <ClInclude Include="model.hpp" />
     <ClInclude Include="resource.h" />

@@ -38,7 +38,7 @@ enum EBufferType {
     BUFFER_COUNT = 4,
 };
 
-class Model : public IRenderable {
+class Model {
 private:
     std::vector<Mesh> mMeshes;
     unsigned mVAO;
